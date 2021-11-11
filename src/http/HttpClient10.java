@@ -14,6 +14,8 @@ public class HttpClient10 implements HttpClient {
 
 	private static final String HTTP_SUCCESS = "200";
 	private static final String GET_FORMAT_STR = "GET %s HTTP/1.0\r\n%s\r\n\r\n";
+	private static final String GET_RANGE_STR = "GET %s HTTP/1.0\r\nRange: bytes=%d-%d\r\n%s\r\n\r\n";
+	private static final String GET_RANGE2_STR = "GET %s HTTP/1.0\r\nRange: bytes=%d\r\n%s\r\n\r\n";
 
 	static private byte[] getContents(InputStream in) throws IOException {
 
@@ -46,13 +48,35 @@ public class HttpClient10 implements HttpClient {
 	}
 
 	public byte[] doGetRange(String urlStr, long start, long end) {
-		// TODO
-		return null;
+		try {
+			URL url = new URL(urlStr);
+			int port = url.getPort();
+			try (Socket cs = new Socket(url.getHost(), port < 0 ? url.getDefaultPort(): port)) {
+				String request = String.format(GET_RANGE_STR, url.getFile(), start, end, USER_AGENT);
+				//System.out.println(request);
+				cs.getOutputStream().write(request.getBytes());
+				return getContents(cs.getInputStream());
+			}
+		} catch (Exception x) {
+			x.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override
-	public byte[] doGetRange(String url, long start) {
-		// TODO
-		return null;
+	public byte[] doGetRange(String urlStr, long start) {
+		try {
+			URL url = new URL(urlStr);
+			int port = url.getPort();
+			try (Socket cs = new Socket(url.getHost(), port < 0 ? url.getDefaultPort(): port)) {
+				String request = String.format(GET_RANGE_STR, url.getFile(), start, USER_AGENT);
+				//System.out.println(request);
+				cs.getOutputStream().write(request.getBytes());
+				return getContents(cs.getInputStream());
+			}
+		} catch (Exception x) {
+			x.printStackTrace();
+			return null;
+		}
 	}	
 }

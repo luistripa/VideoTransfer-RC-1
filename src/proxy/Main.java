@@ -10,13 +10,14 @@ import media.MovieManifest.SegmentContent;
 import proxy.server.ProxyServer;
 
 public class Main {
-	static final String MEDIA_SERVER_BASE_URL = "http://localhost:80";
+	static final String MANIFEST_URL = "http://localhost:9999/%s/manifest.txt";
 
 	public static void main(String[] args) throws Exception {
 
 		ProxyServer.start( (movie, queue) -> new DashPlaybackHandler(movie, queue) );
 		
 	}
+
 	/**
 	 * TODO TODO TODO TODO
 	 * 
@@ -43,8 +44,9 @@ public class Main {
 			
 			this.http = new HttpClient10();
 			
-			
-			this.manifest = null; //TODO
+			String strByte = new String(this.http.doGet(MANIFEST_URL));
+			this.manifest = MovieManifest.parse(strByte);
+			System.out.println(this.manifest.tracks());
 		}
 		
 		/**
