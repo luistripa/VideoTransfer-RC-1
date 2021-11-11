@@ -44,9 +44,11 @@ public class Main {
 			
 			this.http = new HttpClient10();
 			
-			String strByte = new String(this.http.doGet(MANIFEST_URL));
+			String strByte = new String(
+					this.http.doGet(String.format(MANIFEST_URL, this.movie))
+			);
 			this.manifest = MovieManifest.parse(strByte);
-			System.out.println(this.manifest.tracks());
+			//System.out.println(this.manifest.tracks());
 		}
 		
 		/**
