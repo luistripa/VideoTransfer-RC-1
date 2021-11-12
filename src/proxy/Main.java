@@ -11,6 +11,8 @@ import proxy.server.ProxyServer;
 
 public class Main {
 	static final String MANIFEST_URL = "http://localhost:9999/%s/manifest.txt";
+	static final String SEGMENT_URL = "http://localhost:9999/%s/%s";
+
 
 	public static void main(String[] args) throws Exception {
 
@@ -61,7 +63,21 @@ public class Main {
 		 * be fed with a zero-length data segment
 		 */
 		public void run() {
-			// TODO
+			MovieManifest.Track track = this.manifest.tracks().get(0);
+			for(int i = 0; i < track.segments().size(); i++) {
+				MovieManifest.Segment segment = track.segments().get(i);
+				SegmentContent sc = new SegmentContent(track.contentType(), this.http.doGetRange(String.format(SEGMENT_URL, this.movie, track.filename()), segment.offset(), segment.offset() + segment.length() - 1));
+				try {
+					this.queue.put(sc);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			try {
+				this.queue.put(new SegmentContent(track.contentType(), new byte[]{}));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
